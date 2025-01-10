@@ -41,12 +41,12 @@ function Main
             {
                 $isInProgressPipelines = $true
                 $numberOfSleeps = $numberOfSleeps + 1
-                Start-Sleep -Seconds 60
+                Start-Sleep -Second 60
             }
         }
     } while ($isInProgressPipelines -and $numberOfSleeps -le $numberOfSleepsLimit)
 
-    if ($numberOfSleeps -le $numberOfSleepsLimit) {
+    if ($numberOfSleeps -le $numberOfSleepsLimit -and $isInProgressPipelines) {
         throw "Target Pipeline did not finish run before timeout"
     }
 }
