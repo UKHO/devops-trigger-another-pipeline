@@ -38,6 +38,7 @@ function Main
     $numberOfSleeps = 0
     $numberOfSleepsLimit = 5
     $response = Invoke-WebRequest @runPipelineWebRequest
+    Write-Host "Trigger other pipeline"
     $run = ($response.Content | ConvertFrom-Json).value
     $runId = $run.id
 
@@ -62,6 +63,7 @@ function Main
     $runResult = ""
     do
     {
+        Write-Host "Getting status of the pipeline"
         $response = Invoke-WebRequest @getWebRequest
         $run = ($response.Content | ConvertFrom-Json).value
         $isInProgressPipelines = $false
@@ -70,7 +72,8 @@ function Main
         {
             $isInProgressPipelines = $true
             $numberOfSleeps = $numberOfSleeps + 1
-            Start-Sleep -Seconds 60
+            Write-Host "Pipeline still running, nap time"
+            Start-Sleep -Seconds 30
         }
         else
         {

@@ -28,20 +28,18 @@ function Main
     do
     {
         $response = Invoke-WebRequest @listWebRequest
-        Write-Host "Response Had"
-        Write-Host $response
+        Write-Host "List called"
         $runs = ($response.Content | ConvertFrom-Json).value
-        Write-Host $runs
         
         $isInProgressPipelines = $false
         foreach ($run in $runs)
         {
-            Write-Host $run
             if ($run.state -eq "inProgress")
             {
                 $isInProgressPipelines = $true
                 $numberOfSleeps = $numberOfSleeps + 1
-                Start-Sleep -Second 60
+                Write-Host "Pipeline is still running, time to nap"
+                Start-Sleep -Second 30
             }
         }
     } while ($isInProgressPipelines -and $numberOfSleeps -le $numberOfSleepsLimit)
