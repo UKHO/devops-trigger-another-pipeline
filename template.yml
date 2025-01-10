@@ -12,7 +12,7 @@ parameters:
     default: ''
 
 jobs:
-  job:
+  - job:
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
