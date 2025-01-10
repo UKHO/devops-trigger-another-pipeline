@@ -78,7 +78,7 @@ function Main
         }
     } while ($isInProgressPipelines -and $numberOfSleeps -le $numberOfSleepsLimit)
 
-    if ($numberOfSleeps -le $numberOfSleepsLimit)
+    if ($numberOfSleeps -le $numberOfSleepsLimit -and $isInProgressPipelines)
     {
         throw "Triggered pipeline did not finish run before timeout"
     }
