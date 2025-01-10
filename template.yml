@@ -1,0 +1,48 @@
+parameters:
+  - name: organisation
+    type: string
+  - name: project
+    type: string
+  - name: pipelineId
+    type: string
+  - name: accessToken
+    type: string
+  - name: powerShellContainer
+    type: string
+    default: ''
+
+jobs:
+  job:
+    displayName: Trigger Another Pipeline
+    container: ${{ parameters.powerShellContainer }}
+    steps:
+      - checkout: TriggerAnotherPipeline
+        persistCredentials: true
+        path: devops-trigger-another-pipeline
+
+      - task: PowerShell@2
+        name: wait
+        timeoutInMinutes: 60
+        displayName: "Wait until target pipeline is free"
+        inputs:
+          targetType: filePath
+          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/waitUntilTargetPipelineIsFree.ps1"
+          arguments: >
+            -Organisation ${{ parameters.organisation }}
+            -Project ${{ parameters.project }}
+            -PipelineId ${{ parameters.pipelineId }}
+            -AccessToken ${{ parameters.accessToken }}
+
+      - task: PowerShell@2
+        name: trigger
+        displayName: "Trigger target pipeline and wait"
+        timeoutInMinutes: 60
+        inputs:
+          targetType: filePath
+          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/triggerPipelineRunAndWaitForResult.ps1"
+          arguments: >
+            -Organisation ${{ parameters.organisation }}
+            -Project ${{ parameters.project }}
+            -PipelineId ${{ parameters.pipelineId }}
+            -AccessToken ${{ parameters.accessToken }}
+  
