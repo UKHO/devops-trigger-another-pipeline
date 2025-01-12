@@ -16,7 +16,7 @@ parameters:
     default: ''
 
 jobs:
-  - job:
+  - job: TriggerAnotherPipeline
     variables:
     - ${{ if eq(parameters.appConfigUri, '') }}:
       - group: TriggerAnotherPipeline
