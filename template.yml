@@ -18,7 +18,7 @@ parameters:
 jobs:
   - job:
     variables:
-    - ${{ if eq(parameters.appConfigUri, '') } }}:
+    - ${{ if eq(parameters.appConfigUri, '') }}:
       - group: TriggerAnotherPipeline
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
@@ -27,7 +27,7 @@ jobs:
         persistCredentials: true
         path: devops-trigger-another-pipeline
 
-      - ${{ if ne(parameters.appConfigUri, '') } }}:
+      - ${{ if ne(parameters.appConfigUri, '') }}:
         - task: AzureAppConfiguration@8
           inputs: # Will parameter all this
             azureSubscription: 'trigger-another-pipeline-sc'
