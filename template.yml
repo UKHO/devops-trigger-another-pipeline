@@ -21,11 +21,11 @@ jobs:
     - ${{ if eq(parameters.appConfigurationEndpoint, '') }}:
       - group: TriggerAnotherPipeline
     - name: Organisation
-      value: ${{ parameters.organisation }}
+      value: ${{ parameters.organisation }} # If not defined, replaced by App Configuration
     - name: Project
-      value: ${{ parameters.project }}
+      value: ${{ parameters.project }} # If not defined, replaced by App Configuration
     - name: PipelineId
-      value: ${{ parameters.pipelineId }}
+      value: ${{ parameters.pipelineId }} # If not defined, replaced by App Configuration
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
