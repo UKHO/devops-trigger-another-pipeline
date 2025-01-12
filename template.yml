@@ -1,7 +1,13 @@
 parameters:
-  - name: appConfigurationEndpoint
-    type: string
-    default: ''
+  - name: appConfigurationSettings
+    type: object
+    default:
+      azureSubscription: 'trigger-another-pipeline-sc'
+      AppConfigurationEndpoint: ${{ parameters.appConfigurationEndpoint }}
+      KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
+      Label: 'Test'
+      TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
+      SuppressWarningForOverriddenKeys: true
   - name: targetPipelineName
     type: string
     default: ''
@@ -24,34 +30,30 @@ parameters:
 jobs:
   - job: TriggerAnotherPipeline
     variables:
-    - ${{ if eq(parameters.appConfigurationEndpoint, '') }}:
-      - group: TriggerAnotherPipeline
-    - name: Organisation
-      value: ${{ parameters.organisation }} # If not defined, replaced by App Configuration
-    - name: Project
-      value: ${{ parameters.project }} # If not defined, replaced by App Configuration
-    - name: PipelineId
-      value: ${{ parameters.pipelineId }} # If not defined, replaced by App Configuration
+      - name: Organisation
+        value: ${{ parameters.organisation }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
+      - name: Project
+        value: ${{ parameters.project }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
+      - name: PipelineId
+        value: ${{ parameters.pipelineId }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
+      - ${{ if not(parameters.appConfigurationSettings) }}:
+          - group: TriggerAnotherPipeline
     ${{ if eq(parameters.targetPipelineName, '') }}:
       displayName: Trigger Another Pipeline
     ${{ else }}:
       displayName: Trigger ${{ parameters.targetPipelineName }}
-    ${{ if ne(parameters.powerShellContainer, '') }}: 
+    ${{ if ne(parameters.powerShellContainer, '') }}:
       container: ${{ parameters.powerShellContainer }}
     steps:
       - checkout: TriggerAnotherPipeline
         persistCredentials: true
         path: devops-trigger-another-pipeline
 
-      - ${{ if ne(parameters.appConfigurationEndpoint, '') }}:
-        - task: AzureAppConfiguration@8
-          inputs: # Will parameter all this
-            azureSubscription: 'trigger-another-pipeline-sc'
-            AppConfigurationEndpoint: ${{ parameters.appConfigurationEndpoint }}
-            KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
-            Label: 'Test'
-            TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
-            SuppressWarningForOverriddenKeys: true
+      - ${{ if parameters.appConfigurationSettings }}:
+          - task: AzureAppConfiguration@8
+            inputs:
+              ${{ each appConfigurationSetting in parameters.appConfigurationSettings }}:
+                ${{ appConfigurationSetting.Key }}: ${{ appConfigurationSetting.Value }}
 
       - task: PowerShell@2
         name: getAccessToken
