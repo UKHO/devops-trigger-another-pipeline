@@ -1,5 +1,5 @@
 parameters:
-  - name: appConfigUri
+  - name: appConfigurationEndpoint
     type: string
     default: ''
   - name: organisation
@@ -18,8 +18,14 @@ parameters:
 jobs:
   - job: TriggerAnotherPipeline
     variables:
-    - ${{ if eq(parameters.appConfigUri, '') }}:
+    - ${{ if eq(parameters.appConfigurationEndpoint, '') }}:
       - group: TriggerAnotherPipeline
+    - name: Organisation
+      value: ${{ parameters.organisation }}
+    - name: Project
+      value: ${{ parameters.project }}
+    - name: PipelineId
+      value: ${{ parameters.pipelineId }}
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
@@ -27,14 +33,14 @@ jobs:
         persistCredentials: true
         path: devops-trigger-another-pipeline
 
-      - ${{ if ne(parameters.appConfigUri, '') }}:
+      - ${{ if ne(parameters.appConfigurationEndpoint, '') }}:
         - task: AzureAppConfiguration@8
           inputs: # Will parameter all this
             azureSubscription: 'trigger-another-pipeline-sc'
-            AppConfigurationEndpoint: 'https://triggeranotherpipeline-appconfig-uks.azconfig.io'
-            KeyFilter: 'Pipeline:*'
-            Label: 'IAT'
-            TrimKeyPrefix: 'Pipeline:'
+            AppConfigurationEndpoint: ${{ parameters.appConfigurationEndpoint }}
+            KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
+            Label: 'Test'
+            TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
             SuppressWarningForOverriddenKeys: true
 
       - task: PowerShell@2
@@ -57,9 +63,9 @@ jobs:
           targetType: filePath
           filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/waitUntilTargetPipelineIsFree.ps1"
           arguments: >
-            -Organisation ${{ parameters.organisation }}
-            -Project ${{ parameters.project }}
-            -PipelineId ${{ parameters.pipelineId }}
+            -Organisation $(Organisation)
+            -Project $(Project)
+            -PipelineId $(PipelineId)
             -AccessToken "Bearer $(AccessToken)"
 
       - task: PowerShell@2
@@ -70,8 +76,8 @@ jobs:
           targetType: filePath
           filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/triggerPipelineRunAndWaitForResult.ps1"
           arguments: >
-            -Organisation ${{ parameters.organisation }}
-            -Project ${{ parameters.project }}
-            -PipelineId ${{ parameters.pipelineId }}
+            -Organisation $(Organisation)
+            -Project $(Project)
+            -PipelineId $(PipelineId)
             -AccessToken "Bearer $(AccessToken)"
   
