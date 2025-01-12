@@ -13,7 +13,7 @@ function Main
     $runPipelineUri = "$baseUri/$pipelineId/runs$apiVersion"
 
     $headers = @{
-        Authorization = $accessToken
+        Authorization = "Bearer $accessToken"
         "Content-Type" = "application/json"
     }
 

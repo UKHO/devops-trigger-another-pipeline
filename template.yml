@@ -73,7 +73,7 @@ jobs:
             -Organisation $(Organisation)
             -Project $(Project)
             -PipelineId $(PipelineId)
-            -AccessToken "Bearer $(AccessToken)"
+            -AccessToken $(AccessToken)
 
       - task: PowerShell@2
         name: trigger
@@ -86,5 +86,5 @@ jobs:
             -Organisation $(Organisation)
             -Project $(Project)
             -PipelineId $(PipelineId)
-            -AccessToken "Bearer $(AccessToken)"
+            -AccessToken $(AccessToken)
   

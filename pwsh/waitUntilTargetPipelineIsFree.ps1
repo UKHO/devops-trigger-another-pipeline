@@ -13,7 +13,7 @@ function Main
     $listRunUri = "$baseUri/$pipelineId/runs$apiVersion"
 
     $headers = @{
-        Authorization = $accessToken
+        Authorization = "Bearer $accessToken"
     }
 
     $webRequest = @{
