@@ -10,16 +10,7 @@ parameters:
       SuppressWarningForOverriddenKeys: true
   - name: jobVariableMappings
     type: object
-    default: 
-      templates:
-        aTest
-        aTestAnother
-      groups:
-        TriggerAnotherPipeline
-        TriggerAnotherPipeline2
-      variables:
-        thing: one
-        thing2: two
+    default: {}
   - name: targetPipelineName
     type: string
     default: ''
@@ -54,7 +45,7 @@ jobs:
                   - group: ${{ group }} 
           - ${{ if eq(jobVariableMapping.Key, 'templates')}}:
               - ${{ each template in jobVariableMapping.Value }}:
-                  - template: ${{ template }}
+                  - template: ${{variables['System.DefaultWorkingDirectory']}}/${{ template }}@self
           - ${{ if eq(jobVariableMapping.Key, 'variables')}}:
               - ${{ each variable in jobVariableMapping.Value }}:
                   - name: ${{ variable.Key }}
