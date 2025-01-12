@@ -1,10 +1,16 @@
 parameters:
+  - name: appConfigUri
+    type: string
+    default: ''
   - name: organisation
     type: string
+    default: ''
   - name: project
     type: string
+    default: ''
   - name: pipelineId
     type: string
+    default: ''
   - name: powerShellContainer
     type: string
     default: ''
@@ -12,13 +18,24 @@ parameters:
 jobs:
   - job:
     variables:
-    - group: TriggerAnotherPipeline
+    - ${{ if eq(parameters.appConfigUri, '') } }}:
+      - group: TriggerAnotherPipeline
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
       - checkout: TriggerAnotherPipeline
         persistCredentials: true
         path: devops-trigger-another-pipeline
+
+      - ${{ if ne(parameters.appConfigUri, '') } }}:
+        - task: AzureAppConfiguration@8
+          inputs: # Will parameter all this
+            azureSubscription: 'trigger-another-pipeline-sc'
+            AppConfigurationEndpoint: 'https://triggeranotherpipeline-appconfig-uks.azconfig.io'
+            KeyFilter: 'Pipeline:*'
+            Label: 'IAT'
+            TrimKeyPrefix: 'Pipeline:'
+            SuppressWarningForOverriddenKeys: true
 
       - task: PowerShell@2
         name: getAccessToken
