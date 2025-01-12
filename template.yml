@@ -5,20 +5,32 @@ parameters:
     type: string
   - name: pipelineId
     type: string
-  - name: accessToken
-    type: string
   - name: powerShellContainer
     type: string
     default: ''
 
 jobs:
   - job:
+    variables:
+      group: TriggerAnotherPipeline
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
       - checkout: TriggerAnotherPipeline
         persistCredentials: true
         path: devops-trigger-another-pipeline
+
+      - task: PowerShell@2
+        name: getAccessToken
+        timeoutInMinutes: 5
+        displayName: "Get access token"
+        inputs:
+          targetType: filePath
+          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/CreateLoginAcessToken.ps1"
+          arguments: >
+            -ClientId $(ClientId)
+            -ClientSecret $(ClientSecret)
+            -TenantId $(TenantId)
 
       - task: PowerShell@2
         name: wait
@@ -31,7 +43,7 @@ jobs:
             -Organisation ${{ parameters.organisation }}
             -Project ${{ parameters.project }}
             -PipelineId ${{ parameters.pipelineId }}
-            -AccessToken ${{ parameters.accessToken }}
+            -AccessToken "Bearer $(getAccessToken.AccessToken)"
 
       - task: PowerShell@2
         name: trigger
@@ -44,5 +56,5 @@ jobs:
             -Organisation ${{ parameters.organisation }}
             -Project ${{ parameters.project }}
             -PipelineId ${{ parameters.pipelineId }}
-            -AccessToken ${{ parameters.accessToken }}
+            -AccessToken "Bearer $(getAccessToken.AccessToken)"
   
