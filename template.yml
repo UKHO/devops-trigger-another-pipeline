@@ -50,13 +50,13 @@ jobs:
         value: ${{ parameters.pipelineId }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
       - ${{ each jobVariableMapping in parameters.jobVariableMappings }}:
           - ${{ if eq(jobVariableMapping.Key, 'groups')}}:
-              - ${{ each group in parameters.jobVariableMapping.Value }}:
+              - ${{ each group in jobVariableMapping.Value }}:
                   - group: ${{ group }} 
           - ${{ if eq(jobVariableMapping.Key, 'templates')}}:
-              - ${{ each template in parameters.jobVariableMapping.Value }}:
+              - ${{ each template in jobVariableMapping.Value }}:
                   - template: ${{ template }}
           - ${{ if eq(jobVariableMapping.Key, 'variables')}}:
-              - ${{ each variable in parameters.jobVariableMapping.Value }}:
+              - ${{ each variable in jobVariableMapping.Value }}:
                   - name: ${{ variable.Key }}
                     value: ${{ variable.Value }}
     ${{ if eq(parameters.targetPipelineName, '') }}:
