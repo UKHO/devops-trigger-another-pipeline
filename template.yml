@@ -18,8 +18,8 @@ parameters:
 jobs:
   - job:
     variables:
-      ${{ if eq(parameters.appConfigUri, '') } }}:
-        - group: TriggerAnotherPipeline
+    - ${{ if eq(parameters.appConfigUri, '') } }}:
+      - group: TriggerAnotherPipeline
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
