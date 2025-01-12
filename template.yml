@@ -12,7 +12,7 @@ parameters:
 jobs:
   - job:
     variables:
-      group: TriggerAnotherPipeline
+    - group: TriggerAnotherPipeline
     displayName: Trigger Another Pipeline
     container: ${{ parameters.powerShellContainer }}
     steps:
