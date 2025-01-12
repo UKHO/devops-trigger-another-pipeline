@@ -17,6 +17,9 @@ parameters:
   - name: powerShellContainer
     type: string
     default: ''
+  - name: timeoutInMinutes
+    type: number
+    default: 60
 
 jobs:
   - job: TriggerAnotherPipeline
@@ -64,7 +67,7 @@ jobs:
 
       - task: PowerShell@2
         name: wait
-        timeoutInMinutes: 60
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
         displayName: "Wait until target pipeline is free"
         inputs:
           targetType: filePath
@@ -78,7 +81,7 @@ jobs:
       - task: PowerShell@2
         name: trigger
         displayName: "Trigger target pipeline and wait"
-        timeoutInMinutes: 60
+        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
         inputs:
           targetType: filePath
           filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/triggerPipelineRunAndWaitForResult.ps1"
