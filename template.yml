@@ -3,7 +3,7 @@ parameters:
     type: object
     default:
       azureSubscription: 'trigger-another-pipeline-sc'
-      AppConfigurationEndpoint: ${{ parameters.appConfigurationEndpoint }}
+      AppConfigurationEndpoint: https://triggeranotherpipeline-appconfig-uks.azconfig.io
       KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
       Label: 'Test'
       TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
