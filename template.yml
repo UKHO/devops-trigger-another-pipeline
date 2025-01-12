@@ -2,6 +2,9 @@ parameters:
   - name: appConfigurationEndpoint
     type: string
     default: ''
+  - name: targetPipelineName
+    type: string
+    default: ''
   - name: organisation
     type: string
     default: ''
@@ -26,7 +29,10 @@ jobs:
       value: ${{ parameters.project }} # If not defined, replaced by App Configuration
     - name: PipelineId
       value: ${{ parameters.pipelineId }} # If not defined, replaced by App Configuration
-    displayName: Trigger Another Pipeline
+    ${{ if eq(parameters.targetPipelineName, '') }}:
+      displayName: Trigger Another Pipeline
+    ${{ else }}:
+      displayName: Trigger ${{ parameters.targetPipelineName }}
     ${{ if ne(parameters.powerShellContainer, '') }}: 
       container: ${{ parameters.powerShellContainer }}
     steps:
