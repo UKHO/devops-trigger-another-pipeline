@@ -26,7 +26,7 @@ jobs:
         displayName: "Get access token"
         inputs:
           targetType: filePath
-          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/CreateLoginAcessToken.ps1"
+          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/CreateLoginAccessToken.ps1"
           arguments: >
             -ClientId $(ClientId)
             -ClientSecret $(ClientSecret)
