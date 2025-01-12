@@ -16,7 +16,7 @@ function Main
         Authorization = $accessToken
     }
 
-    $listWebRequest = @{
+    $webRequest = @{
         Uri = $listRunUri
         Method = "GET"
         Headers = $headers
@@ -27,8 +27,21 @@ function Main
     $numberOfSleepsLimit = 5
     do
     {
-        $response = Invoke-WebRequest @listWebRequest
-        Write-Host "List called"
+        Write-Host "Invoking WebRequest '$listRunUri'"
+        try
+        {
+            $response = Invoke-WebRequest @webRequest
+            # This will only execute if the Invoke-WebRequest is successful.
+            $statusCode = $response.StatusCode
+        } catch {
+            $statusCode = $_.Exception.Response.StatusCode.value__
+        }
+        Write-Host "Invoked." -NoNewline
+        Write-Host "Response Http Status: $statusCode"
+        if ($statusCode -ne 200) {
+            throw "WebRequest to '$listRunUri' unsuccessful. Response Status Code: '$listRunUri'."
+        }
+        
         $runs = ($response.Content | ConvertFrom-Json).value
         
         $isInProgressPipelines = $false
