@@ -27,7 +27,8 @@ jobs:
     - name: PipelineId
       value: ${{ parameters.pipelineId }} # If not defined, replaced by App Configuration
     displayName: Trigger Another Pipeline
-    container: ${{ parameters.powerShellContainer }}
+    ${{ if ne(parameters.powerShellContainer, '') }}: 
+      container: ${{ parameters.powerShellContainer }}
     steps:
       - checkout: TriggerAnotherPipeline
         persistCredentials: true
