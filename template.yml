@@ -45,7 +45,7 @@ jobs:
                   - group: ${{ group }} 
           - ${{ if eq(jobVariableMapping.Key, 'templates')}}:
               - ${{ each template in jobVariableMapping.Value }}:
-                  - template: ${{variables['System.DefaultWorkingDirectory']}}/${{ template }}@self
+                  - template: ${{ template }}
           - ${{ if eq(jobVariableMapping.Key, 'variables')}}:
               - ${{ each variable in jobVariableMapping.Value }}:
                   - name: ${{ variable.Key }}
