@@ -1,5 +1,7 @@
 ﻿param($ClientId, $ClientSecret, $TenantId)
 
+. $(Join-Path $PSScriptRoot "Shared-Cmdlets.ps1")
+
 Write-Host "Getting access token for $clientId"
 
 $webRequest = @{

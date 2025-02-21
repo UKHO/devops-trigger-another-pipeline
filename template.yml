@@ -1,71 +1,27 @@
 parameters:
-  - name: appConfigurationSettings
-    type: object
-    default:
-      azureSubscription: 'trigger-another-pipeline-sc'
-      AppConfigurationEndpoint: https://triggeranotherpipeline-appconfig-uks.azconfig.io
-      KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
-      Label: 'Test'
-      TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
-      SuppressWarningForOverriddenKeys: true
-  - name: jobVariableMappings
-    type: object
-    default: {}
-  - name: targetPipelineName
+  - name: environment
     type: string
-    default: ''
-  - name: organisation
+    default: "qa"
+  - name: serviceConnection
     type: string
-    default: ''
-  - name: project
-    type: string
-    default: ''
-  - name: pipelineId
-    type: string
-    default: ''
-  - name: powerShellContainer
-    type: string
-    default: ''
-  - name: timeoutInMinutes
-    type: number
-    default: 60
 
 jobs:
-  - job: TriggerAnotherPipeline
-    variables:
-      - name: Organisation
-        value: ${{ parameters.organisation }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
-      - name: Project
-        value: ${{ parameters.project }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
-      - name: PipelineId
-        value: ${{ parameters.pipelineId }} # If not defined by parameters, replaced by either jobVariableMappings or AzureAppConfiguration task
-      - ${{ each jobVariableMapping in parameters.jobVariableMappings }}:
-          - ${{ if eq(jobVariableMapping.Key, 'groups')}}:
-              - ${{ each group in jobVariableMapping.Value }}:
-                  - group: ${{ group }} 
-          - ${{ if eq(jobVariableMapping.Key, 'templates')}}:
-              - ${{ each template in jobVariableMapping.Value }}:
-                  - template: ${{ template }}
-          - ${{ if eq(jobVariableMapping.Key, 'variables')}}:
-              - ${{ each variable in jobVariableMapping.Value }}:
-                  - name: ${{ variable.Key }}
-                    value: ${{ variable.Value }}
-    ${{ if eq(parameters.targetPipelineName, '') }}:
-      displayName: Trigger Another Pipeline
-    ${{ else }}:
-      displayName: Trigger ${{ parameters.targetPipelineName }}
-    ${{ if ne(parameters.powerShellContainer, '') }}:
-      container: ${{ parameters.powerShellContainer }}
+  - job: TriggerADDSAutoTestsPipeline
+    displayName: "Trigger ${{ parameters.environment }} ADDS AutoTests Pipeline"
+    container: "ukhydrographicoffice/terraform-powershell:1.8.5" 
     steps:
-      - checkout: TriggerAnotherPipeline
+      - checkout: TriggerADDSAutoTestsPipeline
         persistCredentials: true
-        path: devops-trigger-another-pipeline
+        path: devops-trigger-adds-autotests-pipeline
 
-      - ${{ if parameters.appConfigurationSettings }}:
-          - task: AzureAppConfiguration@8
-            inputs:
-              ${{ each appConfigurationSetting in parameters.appConfigurationSettings }}:
-                ${{ appConfigurationSetting.Key }}: ${{ appConfigurationSetting.Value }}
+      - task: AzureAppConfiguration@8
+        inputs:
+            azureSubscription: ${{ parameters.serviceConnection }}
+            AppConfigurationEndpoint: https://triggeranotherpipeline-appconfig-uks.azconfig.io
+            KeyFilter: 'Pipeline:TriggerAnotherPipeline:*'
+            Label: ${{ parameters.environment }}
+            TrimKeyPrefix: 'Pipeline:TriggerAnotherPipeline:'
+            SuppressWarningForOverriddenKeys: true
 
       - task: PowerShell@2
         name: getAccessToken
@@ -73,7 +29,7 @@ jobs:
         displayName: "Get access token"
         inputs:
           targetType: filePath
-          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/CreateLoginAccessToken.ps1"
+          filePath: "$(Pipeline.Workspace)/devops-trigger-adds-autotests-pipeline/pwsh/CreateLoginAccessToken.ps1"
           arguments: >
             -ClientId $(ClientId)
             -ClientSecret $(ClientSecret)
@@ -81,11 +37,11 @@ jobs:
 
       - task: PowerShell@2
         name: wait
-        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+        timeoutInMinutes: 60
         displayName: "Wait until target pipeline is free"
         inputs:
           targetType: filePath
-          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/waitUntilTargetPipelineIsFree.ps1"
+          filePath: "$(Pipeline.Workspace)/devops-trigger-adds-autotests-pipeline/pwsh/WaitUntilTargetPipelineIsFree.ps1"
           arguments: >
             -Organisation $(Organisation)
             -Project $(Project)
@@ -95,10 +51,10 @@ jobs:
       - task: PowerShell@2
         name: trigger
         displayName: "Trigger target pipeline and wait"
-        timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+        timeoutInMinutes: 60
         inputs:
           targetType: filePath
-          filePath: "$(Pipeline.Workspace)/devops-trigger-another-pipeline/pwsh/triggerPipelineRunAndWaitForResult.ps1"
+          filePath: "$(Pipeline.Workspace)/devops-trigger-adds-autotests-pipeline/pwsh/TriggerPipelineRunAndWaitForResult.ps1"
           arguments: >
             -Organisation $(Organisation)
             -Project $(Project)
