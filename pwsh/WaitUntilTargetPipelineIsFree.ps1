@@ -5,6 +5,8 @@ param(
     $pipelineId
 )
 
+. $(Join-Path $PSScriptRoot "Shared-Cmdlets.ps1")
+
 function Main
 {
     $baseUri = "https://dev.azure.com/$organisation/$project/_apis/pipelines"
